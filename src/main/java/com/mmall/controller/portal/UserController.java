@@ -84,8 +84,39 @@ public class UserController {
         return iUserService.checkAnswer(username,question,answer);
     }
     //重置密码
+    @RequestMapping(value="forget_reset_password.do",method = RequestMethod.GET)
+    @ResponseBody
     public ServerResponse<String> forgetResetPassword(String username,String newPassword,String forgetToken){
         return iUserService.forgetResetPassword(username,newPassword,forgetToken);
+    }
+
+    //用户登陆状态下重置密码
+    @RequestMapping(value="reset_password.do",method = RequestMethod.GET)
+    @ResponseBody
+    public ServerResponse<String> resetPassword(HttpSession session,String passwordOld,String passwordNew){
+        User user = (User)session.getAttribute(Const.CURRENT_USER);
+        if(user==null){
+            return ServerResponse.createByErrorMessage("用户未登陆");
+        }
+        return iUserService.resetPassword(passwordOld,passwordNew,user);
+    }
+
+    //更新个人用户信息
+    @RequestMapping(value="update_information.do",method = RequestMethod.GET)
+    @ResponseBody
+    public ServerResponse<User> update_information(HttpSession session,User user){
+        User currentUser = (User)session.getAttribute(Const.CURRENT_USER);
+        if(currentUser==null){
+            return ServerResponse.createByErrorMessage("用户未登陆");
+        }
+        user.setId(currentUser.getId());
+        user.setUsername(currentUser.getUsername());
+        ServerResponse<User> response =  iUserService.update_information(currentUser);
+        if(response.isSuccess()){
+            response.getData().setUsername(currentUser.getUsername());
+            session.setAttribute(Const.CURRENT_USER,response.getData());
+        }
+        return response;
     }
 
 }
