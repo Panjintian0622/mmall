@@ -143,7 +143,7 @@ public class UserServiceImpl implements IUserService{
         updateUser.setPhone(user.getPhone());
         updateUser.setQuestion(user.getQuestion());
         updateUser.setAnswer(user.getAnswer());
-        int updateCount = userMapper.updateByPrimaryKey(updateUser);
+        int updateCount = userMapper.updateByPrimaryKeySelective(updateUser);
         if(updateCount>0){
             return  ServerResponse.createBySuccess("更新成功",updateUser);
         }
@@ -158,5 +158,19 @@ public class UserServiceImpl implements IUserService{
         user.setPassword(StringUtils.EMPTY);
         return ServerResponse.createBySuccess(user);
 
+    }
+
+    //backend
+
+    /**
+     * 校验是否是管理员
+     * @param user
+     * @return
+     */
+    public ServerResponse checkAdminEole(User user){
+        if(user != null && user.getRole().intValue()==Const.Role.ROLE_ADMIN){
+            return ServerResponse.createBySuccess();
+        }
+        return ServerResponse.createByError();
     }
 }

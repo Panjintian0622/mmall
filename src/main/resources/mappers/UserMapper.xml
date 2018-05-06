@@ -148,7 +148,7 @@
       answer = #{answer,jdbcType=VARCHAR},
       role = #{role,jdbcType=INTEGER},
       create_time = #{createTime,jdbcType=TIMESTAMP},
-      update_time = now()s
+      update_time = now()
     where id = #{id,jdbcType=INTEGER}
   </update>
   <select id="checkUsername" resultType="int" parameterType="string" >
