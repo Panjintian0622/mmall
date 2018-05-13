@@ -135,40 +135,40 @@ public class ProductManageController {
 
     }
     //富文本上传
-//    @RequestMapping("richtext_img_upload.do")
-//    @ResponseBody
-//    public Map richtextImgUpload(HttpSession session, @RequestParam(value="upload_file",required = false)MultipartFile file , HttpServletRequest request, HttpServletResponse response){
-//        Map map = Maps.newHashMap();
-//        User user = (User)session.getAttribute(Const.CURRENT_USER);
-//        if(user == null){
-//            map.put("success",false);
-//            map.put("msg","请登陆管理员");
-//            return map;
-//        }
-//        //富文本中对于返回值有自己的要求，我们使用simditor的要求进行返回
-//        //
-//        if(iUserService.checkAdminEole(user).isSuccess()){
-//            String path = request.getSession().getServletContext().getRealPath("upload");
-//            String targetName = iFileService.upload(file,path);
-//            if(org.apache.commons.lang3.StringUtils.isBlank(targetName)){
-//                map.put("success",false);
-//                map.put("msg","上传文件失败");
-//                return map;
-//            }
-//            String url = PropertiesUtil.getProperty("ftp.server.http.prefix")+targetName;
-//            map.put("success",true);
-//            map.put("msg","上传文件成功");
-//            map.put("file_path",url);
-//            //增加header
-//            response.addHeader("Access-Control-Allow-Headers","X-File-Name");
-//            return map;
-//        }else{
-//            map.put("success",false);
-//            map.put("msg","无权限操作");
-//            return map;
-//        }
-//
-//
-//    }
+    @RequestMapping("richtext_img_upload.do")
+    @ResponseBody
+    public Map richtextImgUpload(HttpSession session, @RequestParam(value="upload_file",required = false)MultipartFile file , HttpServletRequest request, HttpServletResponse response){
+        Map map = Maps.newHashMap();
+        User user = (User)session.getAttribute(Const.CURRENT_USER);
+        if(user == null){
+            map.put("success",false);
+            map.put("msg","请登陆管理员");
+            return map;
+        }
+        //富文本中对于返回值有自己的要求，我们使用simditor的要求进行返回
+        //
+        if(iUserService.checkAdminEole(user).isSuccess()){
+            String path = request.getSession().getServletContext().getRealPath("upload");
+            String targetName = iFileService.upload(file,path);
+            if(org.apache.commons.lang3.StringUtils.isBlank(targetName)){
+                map.put("success",false);
+                map.put("msg","上传文件失败");
+                return map;
+            }
+            String url = PropertiesUtil.getProperty("ftp.server.http.prefix")+targetName;
+            map.put("success",true);
+            map.put("msg","上传文件成功");
+            map.put("file_path",url);
+            //增加header
+            response.addHeader("Access-Control-Allow-Headers","X-File-Name");
+            return map;
+        }else{
+            map.put("success",false);
+            map.put("msg","无权限操作");
+            return map;
+        }
+
+
+    }
 
 }
