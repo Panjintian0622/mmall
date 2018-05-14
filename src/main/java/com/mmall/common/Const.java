@@ -15,6 +15,13 @@ public class Const {
         //时间复杂度O(1)
         Set<String> PRICE_DESC_ASC = Sets.newHashSet("price_desc","price_asc");
     }
+
+    public interface  Cart{
+        int CHECKED = 1;//即购物车中选中状态
+        int UN_CHENKED = 0;//未选中状态
+        String LIMIT_NUM_FAIL="LIMIT_NUM_FAIL";
+        String LIMIT_NUM_SUCCESS="LIMIT_NUM_SUCCESS";
+    }
     public interface Role{
         int ROLE_CURRENTUSER = 0;//普通用户
         int ROLE_ADMIN = 1;//管理员
