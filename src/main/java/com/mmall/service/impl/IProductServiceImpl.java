@@ -37,7 +37,7 @@ public class IProductServiceImpl implements IProductService{
     @Autowired
     private ICategoryService iCategoryService;
     public ServerResponse saveOrUpdateProduct(Product product){
-        if(product == null){
+        if(product != null){
             if(StringUtils.isNotBlank(product.getSubImages())){
                 String[] subImageArray = product.getSubImages().split(",");
                 if(subImageArray.length>0){
@@ -204,7 +204,7 @@ public class IProductServiceImpl implements IProductService{
         if(StringUtils.isNotBlank(orderBy)){
             if(Const.ProductListOrderBy.PRICE_DESC_ASC.contains(orderBy)){
                 String[] orderByArray = orderBy.split("_");
-                PageHelper.orderBy(orderByArray[0]+""+orderByArray[1]);
+                PageHelper.orderBy(orderByArray[0]+" "+orderByArray[1]);
             }
         }
         List<Product> productList = productMapper.selectByNameAndCategoryIds(StringUtils.isBlank(keyWord)?null:keyWord,categoryList.size()==0?null:categoryList);
