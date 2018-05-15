@@ -1,7 +1,9 @@
 package com.mmall.service.impl;
 
+import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.mmall.common.Const;
+import com.mmall.common.ResponseCode;
 import com.mmall.common.ServerResponse;
 import com.mmall.dao.CartMapper;
 import com.mmall.dao.ProductMapper;
@@ -9,10 +11,12 @@ import com.mmall.pojo.Cart;
 import com.mmall.pojo.Product;
 import com.mmall.service.ICartService;
 import com.mmall.util.BigDecimalUtil;
+import com.mmall.util.PropertiesUtil;
 import com.mmall.vo.CartProductVo;
 import com.mmall.vo.CartVo;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.Collections;
@@ -21,13 +25,17 @@ import java.util.List;
 /**
  * Created by Administrator on 2018/5/14.
  */
+@Service("iCartService")
 public class CartServiceImpl implements ICartService {
 
     @Autowired
     private CartMapper cartMapper;
     @Autowired
     private ProductMapper productMapper;
-    public ServerResponse add(Integer userId,Integer productId,Integer count){
+    public ServerResponse<CartVo> add(Integer userId,Integer productId,Integer count){
+        if(productId == null || count== null){
+            return ServerResponse.createByErrorCodeMessage(ResponseCode.ILLEGAL_ARGUMENT.getCode(),ResponseCode.ILLEGAL_ARGUMENT.getDesc());
+        }
         Cart cart = cartMapper.selectCartByUserIdProductId(userId,productId);
         if(cart == null ){
             //这个产品不在购物车里，需要新添加一个产品的记录
@@ -44,8 +52,49 @@ public class CartServiceImpl implements ICartService {
             cartMapper.updateByPrimaryKey(cart);
         }
         //购物车商品数量限制
-        return null;
+        return this.list(userId);
     }
+
+    public ServerResponse<CartVo> update(Integer userId,Integer productId,Integer count){
+        if(productId == null || count== null){
+            return ServerResponse.createByErrorCodeMessage(ResponseCode.ILLEGAL_ARGUMENT.getCode(),ResponseCode.ILLEGAL_ARGUMENT.getDesc());
+        }
+        Cart cart = cartMapper.selectCartByUserIdProductId(userId,productId);
+        if(cart != null ){
+            cart.setQuantity(count);
+        }
+        cartMapper.updateByPrimaryKeySelective(cart);
+        return this.list(userId);
+
+    }
+
+    public ServerResponse<CartVo> delete(Integer userId,String productIds){
+        //使用瓜娃分割字符串并转成集合
+        List<String> productList = Splitter.on(",").splitToList(productIds);
+        if(CollectionUtils.isEmpty(productList) ){
+            return ServerResponse.createByErrorCodeMessage(ResponseCode.ILLEGAL_ARGUMENT.getCode(),ResponseCode.ILLEGAL_ARGUMENT.getDesc());
+        }
+        cartMapper.deleteByUserIdAndProductIds(userId,productList);
+        return this.list(userId);
+
+    }
+
+    public ServerResponse<CartVo> list(Integer userId){
+        CartVo cartVo = this.getCartVoLimit(userId);
+        return ServerResponse.createBySuccess(cartVo);
+    }
+
+    public ServerResponse<CartVo> selectOrUnSelect(Integer userId,Integer productId,Integer checked){
+        cartMapper.checkedOrUnCheckedProduct(userId,null,checked);
+        return this.list(userId);
+    }
+    public ServerResponse<Integer> getCartProductCount(Integer userId){
+        if(userId == null ){
+            return ServerResponse.createBySuccess(0);
+        }
+        return ServerResponse.createBySuccess(cartMapper.selectCartProductCount(userId));
+    }
+
 
     private CartVo getCartVoLimit(Integer userId){
         CartVo cartVo = new CartVo();
@@ -96,7 +145,17 @@ public class CartServiceImpl implements ICartService {
         }
         cartVo.setCartTotalPrice(cartTotalPrice);
         cartVo.setCartProductVoList(cartProductVos);
-      //  cartVo.setAllChecked();
-        return null;
+        cartVo.setAllChecked(this.getAllCheckedStatus(userId));
+        cartVo.setImageHost(PropertiesUtil.getProperty("ftp.server.http.prefix"));
+        return cartVo;
     }
+
+    private boolean getAllCheckedStatus(Integer userId){
+        if(userId == null){
+            return false;
+        }
+        return cartMapper.selectCartProductCheckedStatusByUserId(userId)==0;
+    }
+
+
 }
