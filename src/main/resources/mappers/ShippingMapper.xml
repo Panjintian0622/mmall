@@ -40,7 +40,7 @@
     values (#{id,jdbcType=INTEGER}, #{userId,jdbcType=INTEGER}, #{receiverName,jdbcType=VARCHAR}, 
       #{receiverPhone,jdbcType=VARCHAR}, #{receiverMobile,jdbcType=VARCHAR}, #{receiverProvince,jdbcType=VARCHAR}, 
       #{receiverCity,jdbcType=VARCHAR}, #{receiverDistrict,jdbcType=VARCHAR}, #{receiverAddress,jdbcType=VARCHAR}, 
-      #{receiverZip,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP}
+      #{receiverZip,jdbcType=VARCHAR}, now(), now()
       )
   </insert>
   <insert id="insertSelective" parameterType="com.mmall.pojo.Shipping" >
@@ -77,10 +77,10 @@
         receiver_zip,
       </if>
       <if test="createTime != null" >
-        create_time,
+        now(),
       </if>
       <if test="updateTime != null" >
-        update_time,
+        now(),
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides="," >
@@ -156,7 +156,7 @@
         create_time = #{createTime,jdbcType=TIMESTAMP},
       </if>
       <if test="updateTime != null" >
-        update_time = #{updateTime,jdbcType=TIMESTAMP},
+        update_time = now(),
       </if>
     </set>
     where id = #{id,jdbcType=INTEGER}
@@ -173,11 +173,11 @@
       receiver_address = #{receiverAddress,jdbcType=VARCHAR},
       receiver_zip = #{receiverZip,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=TIMESTAMP},
-      update_time = #{updateTime,jdbcType=TIMESTAMP}
+      update_time = now()
     where id = #{id,jdbcType=INTEGER}
   </update>
   <delete id="deleteByShippingIdAndUserId" parameterType="map">
-    selete FROM mmall_shipping where id=#{shippingId} and user_id=#{userId}
+    delete FROM mmall_shipping where id=#{shippingId} and user_id=#{userId}
   </delete>
   <update id="updateByShipping" parameterType="com.mmall.pojo.Shipping">
      update mmall_shipping
@@ -191,8 +191,18 @@
       receiver_address = #{receiverAddress,jdbcType=VARCHAR},
       receiver_zip = #{receiverZip,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=TIMESTAMP},
-      update_time = #{updateTime,jdbcType=TIMESTAMP}
+      update_time =  now()
     where id = #{id,jdbcType=INTEGER}
     and user_id = #{userId,jdbcType=INTEGER}
   </update>
+  <select id="selectByShippingIdUserId" resultMap="BaseResultMap" parameterType="map">
+    SELECT  <include refid="Base_Column_List"/>
+     FROM  mmall_shipping WHERE user_id=#{userId} and id=#{shippingId}
+
+  </select>
+  <select id="selectByUserId" parameterType="int" resultMap="BaseResultMap">
+
+    SELECT <include refid="Base_Column_List"/>
+    FROM  mmall_shipping where user_id=#{userId}
+  </select>
 </mapper>
